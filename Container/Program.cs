@@ -1,11 +1,53 @@
-﻿
+﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Net.Mail;
 using System.Runtime.CompilerServices;
+using System.Web;
+using Container;
 
-Ship ship = new Ship(5, 5, 1000);
+Main();
 
 void Main()
 {
+begin:
+
+    Console.WriteLine("Welcome to the container loading program");
+    Console.WriteLine("Do you want to choose everything yourself?");
+    Console.WriteLine("0. Yes");
+    Console.WriteLine("1. No");
+    Console.WriteLine("2. predetermined");
+
+    int choice = int.Parse(Console.ReadLine());
+    if (choice < 0 || choice > 2)
+    {
+        Console.WriteLine("Invalid input");
+        goto begin;
+    }
+    if (choice == 0)
+    {
+
+    }
+    else if (choice == 2)
+    {
+        Predetermined();
+    }
+    else
+    {
+        Random();
+    }
+
+
+Manual:
+
+    Console.WriteLine("Please enter the width of the ship");
+    int width = int.Parse(Console.ReadLine());
+    Console.WriteLine("Please enter the length of the ship");
+    int length = int.Parse(Console.ReadLine());
+
+
+    Captain captain = new Captain(width, length);
+
     Console.WriteLine("How many containers do you want to add?");
     int numberOfContainers = int.Parse(Console.ReadLine());
 
@@ -15,37 +57,196 @@ void Main()
         return;
     }
 
-    List<Container> containers = new List<Container>();
+    List<Container.Container> containers = new List<Container.Container>();
     for (int i = 0; i < numberOfContainers; i++)
     {
-        Container container = CreateContainer();
+        Container.Container container = CreateContainer();
         containers.Add(container);
     }
 
+    int weight = 0;
+    foreach (var container in containers)
+    {
+        weight += container.Weight;
+    }
+
+
+    try
+    {
+        captain.AddContainers(containers);
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e.Message);
+        goto Manual;
+    }
+    captain.DetermineBest();
+
+    if (captain.LeftOverContainers.Count > 0)
+    {
+        Console.WriteLine("The ship is full and the following containers are left over:");
+        foreach (var container in captain.LeftOverContainers)
+        {
+            Console.WriteLine($"Weight: {container.Weight} Type: {container.ContainerType}");
+        }
+    }
+    else
+    {
+        Console.WriteLine("The ship was succesfully loaded");
+        UrlBuilder(captain.Ship);
+    }
 
 }
 
-// when placing things ontop only the most bottom one matters
 
-Container CreateContainer()
+void Predetermined()
 {
-    Container container = null;
+    Captain captain = new Captain(3, 3);
 
-    AddContainers:
+    List<Container.Container> containers = new List<Container.Container>();
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(30, ContainerType.ValuableCooled));
+    containers.Add(new Container.Container(30, ContainerType.ValuableCooled));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(30, ContainerType.Cooled));
+    containers.Add(new Container.Container(30, ContainerType.Valueable));
+    containers.Add(new Container.Container(30, ContainerType.Valueable));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(30, ContainerType.Cooled));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(4, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(16, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(27, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(24, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(30, ContainerType.Cooled));
+    containers.Add(new Container.Container(30, ContainerType.Cooled));
+    containers.Add(new Container.Container(30, ContainerType.Cooled));
+    containers.Add(new Container.Container(30, ContainerType.Cooled));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(30, ContainerType.Cooled));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+    containers.Add(new Container.Container(20, ContainerType.Ordinary));
+
+    captain.AddContainers(containers);
+
+
+    var result = captain.DetermineBest();
+    Console.WriteLine(result.WeightLeft + result.WeightRight);
+    UrlBuilder(captain.Ship);
+}
+
+void Random()
+{
+Random:
+    Random random = new Random();
+    int width = random.Next(1, 10);
+    int length = random.Next(1, 10);
+
+    Captain captain = new Captain(width, length);
+
+    int numberOfContainers = random.Next(80, 80);
+
+    List<Container.Container> containers = new List<Container.Container>();
+
+    for (int i = 0; i < numberOfContainers; i++)
+    {
+        Container.Container container = new Container.Container(random.Next(30, 30), (ContainerType)random.Next(1, 1));
+        containers.Add(container);
+    }
+
+    try
+    {
+        captain.AddContainers(containers);
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e.Message);
+        goto Random;
+    }
+
+
+    captain.DetermineBest();
+    UrlBuilder(captain.Ship);
+}
+
+void UrlBuilder(Ship ship)
+{
+    string baseUrl = "https://i872272.luna.fhict.nl/ContainerVisualizer/index.html";
+
+    string stacks = "";
+    string weights = "";
+
+    for (int j = ship.Cargo.GetLength(1) - 1; j >= 0; j--)
+    {
+        string rowStacks = "";
+        string rowWeights = "";
+
+        for (int i = ship.Cargo.GetLength(0) - 1; i >= 0; i--)
+        {
+            var containerStack = ship.Cargo[i, j];
+            string stackTypes = "";
+            string stackWeights = "";
+
+            for (int k = 0; k < containerStack.Containers.Count; k++)
+            {
+                stackTypes += ((int)containerStack.Containers[k].ContainerType).ToString();
+                stackWeights += containerStack.Containers[k].Weight.ToString();
+
+                if (k < containerStack.Containers.Count - 1)
+                {
+                    stackTypes += "-";
+                    stackWeights += "-";
+                }
+            }
+
+            rowStacks += (ship.Cargo.GetLength(0) - 1 - i > 0 ? "," : "") + (string.IsNullOrEmpty(stackTypes) ? "" : stackTypes);
+            rowWeights += (ship.Cargo.GetLength(0) - 1 - i > 0 ? "," : "") + (string.IsNullOrEmpty(stackWeights) ? "" : stackWeights);
+        }
+
+        stacks += (j < ship.Cargo.GetLength(1) - 1 ? "/" : "") + rowStacks;
+        weights += (j < ship.Cargo.GetLength(1) - 1 ? "/" : "") + rowWeights;
+    }
+
+    string url = $"{baseUrl}?length={ship.LengthInContainers}&width={ship.WidthInContainers}&stacks={stacks}&weights={weights}";
+
+    Console.WriteLine(url);
+}
+
+Container.Container CreateContainer()
+{
+    Container.Container container = new Container.Container(20, ContainerType.Ordinary);
+
+AddContainers:
     Console.WriteLine("What kind of cargo is it?");
-    Console.WriteLine("0. Valuable and Cooled");
-    Console.WriteLine("1. Valuable");
-    Console.WriteLine("2. Cooled");
-    Console.WriteLine("3. Ordinary");
+    Console.WriteLine("4. Valuable and Cooled");
+    Console.WriteLine("2. Valuable");
+    Console.WriteLine("3. Cooled");
+    Console.WriteLine("1. Ordinary");
 
     int containerType = int.Parse(Console.ReadLine());
-    if (containerType < 0 || containerType > 3)
+    if (containerType < 1 || containerType > 5)
     {
         Console.WriteLine("Invalid input");
         goto AddContainers;
     }
 
-    SelectWeight:
+SelectWeight:
 
     Console.WriteLine("What does it weigh?");
     int cargoWeight = int.Parse(Console.ReadLine());
@@ -55,163 +256,12 @@ Container CreateContainer()
         goto SelectWeight;
     }
 
-    container = new Container(cargoWeight, (ContainerType)containerType);
+    container = new Container.Container(cargoWeight, (ContainerType)containerType);
 
     return container;
 }
 
-public enum ContainerType
-{
-    ValuableCooled,
-    Valueable,
-    Cooled,
-    Ordinary
-}
-
-
-public class Ship()
-{
-    public int WidthInContainers { get; private set; }
-    public int LengthInContainers { get; private set; }
-    public int MaxWeight { get; private set; }
-    public int Weight { get; private set; }
-    public int WeightRight { get; private set; }
-    public int WeightLeft { get; private set; }
-    public ContainerStack[,] Cargo { get; private set; }
-    public Ship(int width, int length, int Max) : this()
-    {
-        this.WidthInContainers = width;
-        this.LengthInContainers = length;
-        this.MaxWeight = Max;
-
-        for (int l = 0; l < LengthInContainers; l++)
-        {
-            for (int w = 0; w < WidthInContainers; w++)
-            {
-                if (l == 0)
-                {
-                    //first row
-                    Cargo[l, w] = new ContainerStack(true, true);
-                }
-                else if (l == LengthInContainers - 1)
-                {
-                    //last row
-                    Cargo[l, w] = new ContainerStack(false, true);
-                }
-                else
-                {
-                    Cargo[l, w] = new ContainerStack(false, false);
-                }
-            }
-        }
-    }
-
-    public bool AddContainer(Container container)
-    {
-        if ()
-    }
 
 
 
-}
-
-public class ContainerStack()
-{
-    public bool isCooled { get; private set; }
-    public bool isAccessible { get; private set; }
-    public int TotalWeight { get; private set; }
-    public List<Container> Containers { get; private set; } = new List<Container>();
-
-    public ContainerStack(bool cooled, bool accessible) : this()
-    {
-        this.isCooled = cooled;
-        this.isAccessible = accessible;
-    }
-    
-    public bool AddContainer(Container container)
-    {
-        if (!IsAllowed(container))
-        {
-            return false;
-        }
-        Containers.Add(container);
-        SetTotalWeight();
-        Containers.First().AddWeightOnTop(container.Weight);
-
-        return true;
-    }
-
-    private bool IsAllowed(Container container)
-    {
-        if (!isCooled && container.ContainerType == ContainerType.Cooled || !isCooled && container.ContainerType == ContainerType.ValuableCooled)
-        {
-            return false;
-        }
-        if (!isAccessible && container.ContainerType == ContainerType.Valueable || !isAccessible && container.ContainerType == ContainerType.ValuableCooled)
-        {
-            return false;
-        }
-
-        if (Containers.Last().ContainerType == ContainerType.Valueable || Containers.Last().ContainerType == ContainerType.ValuableCooled)
-        {
-            return false;
-        }
-
-        if (!WeightAllowed(container))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    private bool WeightAllowed(Container container)
-    {
-        if (Containers.Count == 0)
-        {
-            return true;
-        }
-        return Containers.First().MaxWeightOnTop >= Containers.First().WeightOnTop + container.Weight;
-    }
-
-    public void SetTotalWeight()
-    {
-        int totalWeight = 0;
-        foreach (var container in Containers)
-        {
-            totalWeight += container.Weight;
-        }
-        this.TotalWeight = totalWeight;
-    }
-}
-
-
-public class Container
-{
-    public int MaxWeight { get; private set; } = 30;
-    public int MinWeight { get; private set; } = 4;
-    public int MaxWeightOnTop { get; private set; } = 120;
-    public int Weight { get; private set; }
-    public int WeightOnTop { get; private set; }
-    public ContainerType ContainerType { get; private set; }
-
-    public Container(int weight, ContainerType type)
-    {
-        if (weight < MinWeight || weight > MaxWeight)
-        {
-            throw new ArgumentOutOfRangeException();
-        }
-        this.ContainerType= type;
-        this.Weight = weight;
-    }
-
-    public void AddWeightOnTop(int weight)
-    {
-        if (weight < 0 || weight > MaxWeightOnTop)
-        {
-            throw new ArgumentOutOfRangeException();
-        }
-        this.WeightOnTop = weight;
-    }
-}
 

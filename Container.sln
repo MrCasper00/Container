@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34714.143
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Container", "Container\Container.csproj", "{ECDE217A-6D0D-443C-85CA-B2A905548482}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContainerSort", "Container\ContainerSort.csproj", "{ECDE217A-6D0D-443C-85CA-B2A905548482}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestContainer", "TestContainer\TestContainer.csproj", "{5097E56D-ABC5-4AD9-A391-1A9941A5E2AA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{ECDE217A-6D0D-443C-85CA-B2A905548482} = {ECDE217A-6D0D-443C-85CA-B2A905548482}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +20,10 @@ Global
 		{ECDE217A-6D0D-443C-85CA-B2A905548482}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECDE217A-6D0D-443C-85CA-B2A905548482}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECDE217A-6D0D-443C-85CA-B2A905548482}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5097E56D-ABC5-4AD9-A391-1A9941A5E2AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5097E56D-ABC5-4AD9-A391-1A9941A5E2AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5097E56D-ABC5-4AD9-A391-1A9941A5E2AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5097E56D-ABC5-4AD9-A391-1A9941A5E2AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
